@@ -19,6 +19,8 @@ public class SudokuBoardView extends View {
     private int selectedRow = -1, selectedCol = -1;
     private Paint linePaint, textPaint, selectedPaint;
     private Random random = new Random();
+    private boolean highlightWrong = false;
+    private boolean gameCompleted = false;
 
     public SudokuBoardView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -107,10 +109,24 @@ public class SudokuBoardView extends View {
         int width = getWidth();
         int height = getHeight();
         int cellSize = Math.min(width, height) / 9;
-        // Draw selected cell
+        // If game completed, draw blue overlay
+        if (gameCompleted) {
+            Paint bluePaint = new Paint();
+            bluePaint.setColor(Color.parseColor("#4488FF"));
+            bluePaint.setAlpha(120);
+            canvas.drawRect(0, 0, cellSize * 9, cellSize * 9, bluePaint);
+        }
+        // Draw selected cell (yellow or red if wrong)
         if (selectedRow != -1 && selectedCol != -1) {
-            canvas.drawRect(selectedCol * cellSize, selectedRow * cellSize,
-                    (selectedCol + 1) * cellSize, (selectedRow + 1) * cellSize, selectedPaint);
+            if (highlightWrong) {
+                Paint wrongPaint = new Paint();
+                wrongPaint.setColor(Color.RED);
+                canvas.drawRect(selectedCol * cellSize, selectedRow * cellSize,
+                        (selectedCol + 1) * cellSize, (selectedRow + 1) * cellSize, wrongPaint);
+            } else {
+                canvas.drawRect(selectedCol * cellSize, selectedRow * cellSize,
+                        (selectedCol + 1) * cellSize, (selectedRow + 1) * cellSize, selectedPaint);
+            }
         }
         // Draw numbers
         for (int r = 0; r < 9; r++) {
@@ -153,9 +169,33 @@ public class SudokuBoardView extends View {
         if (selectedRow != -1 && selectedCol != -1) {
             if (initialBoard[selectedRow][selectedCol] == 0) {
                 board[selectedRow][selectedCol] = number;
+                if (number != solution[selectedRow][selectedCol]) {
+                    highlightWrong = true;
+                    postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            highlightWrong = false;
+                            invalidate();
+                        }
+                    }, 500);
+                    if (listener != null) listener.onNumberWrong();
+                } else {
+                    highlightWrong = false;
+                    if (isBoardFull() && checkSolution()) {
+                        gameCompleted = true;
+                        if (listener != null) listener.onSudokuCompleted();
+                    }
+                }
                 invalidate();
             }
         }
+    }
+    private boolean isBoardFull() {
+        for (int r = 0; r < 9; r++)
+            for (int c = 0; c < 9; c++)
+                if (board[r][c] == 0)
+                    return false;
+        return true;
     }
 
     public boolean checkSolution() {
