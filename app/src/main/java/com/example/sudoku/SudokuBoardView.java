@@ -165,4 +165,13 @@ public class SudokuBoardView extends View {
                     return false;
         return true;
     }
+
+    public interface SudokuListener {
+        void onNumberWrong();
+        void onSudokuCompleted();
+    }
+    private SudokuListener listener;
+    public void setSudokuListener(SudokuListener listener) {
+        this.listener = listener;
+    }
 }
