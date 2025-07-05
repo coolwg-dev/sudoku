@@ -8,14 +8,22 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.Random;
+import java.util.Collections;
+import java.util.ArrayList;
+
 public class SudokuBoardView extends View {
     private int[][] board = new int[9][9];
+    private int[][] initialBoard = new int[9][9];
+    private int[][] solution = new int[9][9];
     private int selectedRow = -1, selectedCol = -1;
     private Paint linePaint, textPaint, selectedPaint;
+    private Random random = new Random();
 
     public SudokuBoardView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+        generateRandomSudoku();
     }
 
     private void init() {
@@ -28,6 +36,69 @@ public class SudokuBoardView extends View {
         textPaint.setTextAlign(Paint.Align.CENTER);
         selectedPaint = new Paint();
         selectedPaint.setColor(Color.YELLOW);
+    }
+
+    private void generateRandomSudoku() {
+        // Generate a full valid solution
+        fillBoard(solution);
+        // Copy solution to initialBoard
+        for (int r = 0; r < 9; r++)
+            for (int c = 0; c < 9; c++)
+                initialBoard[r][c] = solution[r][c];
+        // Remove numbers to create a puzzle
+        removeNumbers(initialBoard, 40); // Remove 40 cells for medium difficulty
+        // Copy initialBoard to board
+        for (int r = 0; r < 9; r++)
+            for (int c = 0; c < 9; c++)
+                board[r][c] = initialBoard[r][c];
+    }
+
+    // Backtracking Sudoku generator
+    private boolean fillBoard(int[][] board) {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (board[row][col] == 0) {
+                    ArrayList<Integer> nums = new ArrayList<>();
+                    for (int n = 1; n <= 9; n++) nums.add(n);
+                    Collections.shuffle(nums, random);
+                    for (int num : nums) {
+                        if (isSafe(board, row, col, num)) {
+                            board[row][col] = num;
+                            if (fillBoard(board)) return true;
+                            board[row][col] = 0;
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isSafe(int[][] board, int row, int col, int num) {
+        for (int i = 0; i < 9; i++) {
+            if (board[row][i] == num || board[i][col] == num) return false;
+        }
+        int boxRow = row - row % 3, boxCol = col - col % 3;
+        for (int r = 0; r < 3; r++)
+            for (int c = 0; c < 3; c++)
+                if (board[boxRow + r][boxCol + c] == num) return false;
+        return true;
+    }
+
+    // Remove numbers to create a puzzle
+    private void removeNumbers(int[][] board, int count) {
+        int removed = 0;
+        while (removed < count) {
+            int r = random.nextInt(9);
+            int c = random.nextInt(9);
+            if (board[r][c] != 0) {
+                int backup = board[r][c];
+                board[r][c] = 0;
+                // Optionally: check for unique solution here
+                removed++;
+            }
+        }
     }
 
     @Override
@@ -80,8 +151,18 @@ public class SudokuBoardView extends View {
 
     public void setNumber(int number) {
         if (selectedRow != -1 && selectedCol != -1) {
-            board[selectedRow][selectedCol] = number;
-            invalidate();
+            if (initialBoard[selectedRow][selectedCol] == 0) {
+                board[selectedRow][selectedCol] = number;
+                invalidate();
+            }
         }
+    }
+
+    public boolean checkSolution() {
+        for (int r = 0; r < 9; r++)
+            for (int c = 0; c < 9; c++)
+                if (board[r][c] != solution[r][c])
+                    return false;
+        return true;
     }
 }
