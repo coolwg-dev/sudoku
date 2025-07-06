@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">數獨遊戲</string>
+    <string name="select_difficulty">選擇難度：</string>
+    <string name="play_game">開始遊戲</string>
+    <string name="personal_history">個人紀錄</string>
+    <string name="back_to_home">回主頁</string>
+    <string name="wrong_number">數字錯誤！</string>
+    <string name="sudoku_completed">恭喜你完成數獨！</string>
+    <string-array name="difficulty_levels">
+        <item>簡單</item>
+        <item>中等</item>
+        <item>困難</item>
+    </string-array>
+    <string name="timer_placeholder">00:00</string>
+    <string name="personal_history_coming_soon">個人紀錄（即將推出）</string>
+</resources>
+
