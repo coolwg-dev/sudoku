@@ -60,6 +60,13 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         isTimerRunning = true;
         secondsElapsed = 0;
         timerHandler.post(timerRunnable);
+        Button btnHint = findViewById(R.id.btnHint);
+        btnHint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sudokuBoard.giveHint();
+            }
+        });
     }
 
     @Override

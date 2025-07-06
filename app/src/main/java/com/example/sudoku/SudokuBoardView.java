@@ -233,6 +233,29 @@ public class SudokuBoardView extends View {
         invalidate();
     }
 
+    public void giveHint() {
+        if (gameCompleted) return;
+        // Find a random empty cell
+        ArrayList<int[]> emptyCells = new ArrayList<>();
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                if (board[r][c] == 0) {
+                    emptyCells.add(new int[]{r, c});
+                }
+            }
+        }
+        if (emptyCells.size() == 0) return;
+        int[] cell = emptyCells.get(random.nextInt(emptyCells.size()));
+        int r = cell[0], c = cell[1];
+        board[r][c] = solution[r][c];
+        invalidate();
+        // Optionally, check if completed after hint
+        if (isBoardFull() && checkSolution()) {
+            gameCompleted = true;
+            if (listener != null) listener.onSudokuCompleted();
+        }
+    }
+
     public interface SudokuListener {
         void onNumberWrong();
         void onSudokuCompleted();

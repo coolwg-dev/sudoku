@@ -110,6 +110,14 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/btnHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hint"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp" />
+
+    <Button
         android:id="@+id/btnBackHome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
