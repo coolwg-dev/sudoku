@@ -13,5 +13,12 @@
         android:text="Personal History (Coming Soon)"
         android:textSize="18sp" />
 
-</LinearLayout>
+    <Button
+        android:id="@+id/btnBackHome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back to Home"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp" />
 
+</LinearLayout>

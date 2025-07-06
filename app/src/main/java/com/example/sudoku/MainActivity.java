@@ -24,6 +24,14 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
                 }
             });
         }
+
+        Button btnBackHome = findViewById(R.id.btnBackHome);
+        btnBackHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish(); // Go back to HomeActivity
+            }
+        });
     }
 
     @Override

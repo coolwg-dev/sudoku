@@ -6,6 +6,21 @@
     android:gravity="center"
     android:padding="24dp">
 
+    <TextView
+        android:id="@+id/tvSelectDifficulty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Difficulty:"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/spinnerDifficulty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/difficulty_levels"
+        android:layout_marginBottom="16dp" />
+
     <Button
         android:id="@+id/btnPlayGame"
         android:layout_width="wrap_content"
@@ -23,4 +38,3 @@
         android:text="Personal History" />
 
 </LinearLayout>
-
