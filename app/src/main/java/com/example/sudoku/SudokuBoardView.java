@@ -206,6 +206,33 @@ public class SudokuBoardView extends View {
         return true;
     }
 
+    public void setDifficulty(int difficulty) {
+        // 0: Easy, 1: Medium, 2: Hard
+        int removeCount = 40;
+        if (difficulty == 0) removeCount = 30;
+        else if (difficulty == 1) removeCount = 40;
+        else if (difficulty == 2) removeCount = 55;
+        // Generate new puzzle
+        for (int r = 0; r < 9; r++)
+            for (int c = 0; c < 9; c++) {
+                board[r][c] = 0;
+                initialBoard[r][c] = 0;
+                solution[r][c] = 0;
+            }
+        fillBoard(solution);
+        for (int r = 0; r < 9; r++)
+            for (int c = 0; c < 9; c++)
+                initialBoard[r][c] = solution[r][c];
+        removeNumbers(initialBoard, removeCount);
+        for (int r = 0; r < 9; r++)
+            for (int c = 0; c < 9; c++)
+                board[r][c] = initialBoard[r][c];
+        gameCompleted = false;
+        selectedRow = -1;
+        selectedCol = -1;
+        invalidate();
+    }
+
     public interface SudokuListener {
         void onNumberWrong();
         void onSudokuCompleted();
