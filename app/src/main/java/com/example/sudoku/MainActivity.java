@@ -1,5 +1,6 @@
 package com.example.sudoku;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -13,6 +14,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private int secondsElapsed = 0;
     private boolean isTimerRunning = false;
     private TextView tvTimer;
+    private int difficulty = 0;
     private Runnable timerRunnable = new Runnable() {
         @Override
         public void run() {
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
             }
         });
         // Get difficulty from intent
-        int difficulty = getIntent().getIntExtra("difficulty", 0);
+        difficulty = getIntent().getIntExtra("difficulty", 0);
         sudokuBoard.setDifficulty(difficulty); // You must implement this in SudokuBoardView
         // Start timer
         isTimerRunning = true;
@@ -69,5 +71,18 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     public void onSudokuCompleted() {
         isTimerRunning = false;
         Toast.makeText(this, "Congratulations! Sudoku completed!", Toast.LENGTH_LONG).show();
+        saveHistory();
+    }
+
+    private void saveHistory() {
+        SharedPreferences prefs = getSharedPreferences("sudoku_history", MODE_PRIVATE);
+        String history = prefs.getString("history", "");
+        String[] modes = {"Easy", "Medium", "Hard"};
+        int minutes = secondsElapsed / 60;
+        int seconds = secondsElapsed % 60;
+        String timeStr = String.format("%02d:%02d", minutes, seconds);
+        String record = String.format("%s | %s", modes[difficulty], timeStr);
+        history = record + "\n" + history;
+        prefs.edit().putString("history", history).apply();
     }
 }
