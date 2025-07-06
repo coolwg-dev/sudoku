@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sudoku Game</string>
+    <string name="select_difficulty">Select Difficulty:</string>
+    <string name="play_game">Play Game</string>
+    <string name="personal_history">Personal History</string>
+    <string name="back_to_home">Back to Home</string>
+    <string name="wrong_number">Wrong number!</string>
+    <string name="sudoku_completed">Congratulations! Sudoku completed!</string>
+    <string-array name="difficulty_levels">
+        <item>Easy</item>
+        <item>Medium</item>
+        <item>Hard</item>
+    </string-array>
+    <string name="timer_placeholder">00:00</string>
+    <string name="personal_history_coming_soon">Personal History (Coming Soon)</string>
 </resources>
-
