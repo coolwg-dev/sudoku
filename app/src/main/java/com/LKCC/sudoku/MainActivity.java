@@ -37,6 +37,9 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private int mistakes = 0;
     private TextView tvMistakes;
     private TextView tvScore;
+    private TextView tvDifficulty;
+    private SudokuBoardView sudokuBoard;
+    private TextView[] numberCountViews = new TextView[9]; // Array to hold the small number count TextViews
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +49,6 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         // Get difficulty from intent
         difficulty = getIntent().getIntExtra("difficulty", 0);
         switch (difficulty) {
-            case 0:
-                mode = GameMode.EASY;
-                break;
             case 1:
                 mode = GameMode.MEDIUM;
                 break;
@@ -65,8 +65,36 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         tvFinished.setVisibility(View.GONE);
         tvMistakes = findViewById(R.id.tvMistakes);
         tvScore = findViewById(R.id.tvScore);
-        SudokuBoardView sudokuBoard = findViewById(R.id.sudokuBoard);
+        tvDifficulty = findViewById(R.id.tvDifficulty);
+
+        // Initialize score to 0
+        score = 0;
+        tvScore.setText("Score: " + score);
+
+        // Set difficulty display to match the game difficulty
+        switch (mode) {
+            case EASY:
+                tvDifficulty.setText("Easy");
+                break;
+            case MEDIUM:
+                tvDifficulty.setText("Medium");
+                break;
+            case HARD:
+                tvDifficulty.setText("Hard");
+                break;
+        }
+
+        sudokuBoard = findViewById(R.id.sudokuBoard);
         sudokuBoard.setSudokuListener(this);
+
+        // Initialize number count views
+        int[] smallButtonIds = {R.id.btnNum1Small, R.id.btnNum2Small, R.id.btnNum3Small,
+                               R.id.btnNum4Small, R.id.btnNum5Small, R.id.btnNum6Small,
+                               R.id.btnNum7Small, R.id.btnNum8Small, R.id.btnNum9Small};
+        for (int i = 0; i < smallButtonIds.length; i++) {
+            numberCountViews[i] = findViewById(smallButtonIds[i]);
+        }
+
         // Set clues based on mode
         int clues = 50;
         switch (mode) {
@@ -82,6 +110,10 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         }
         sudokuBoard.setClues(clues);
         sudokuBoard.generateNewPuzzle();
+
+        // Update number counts after puzzle generation
+        updateNumberCounts();
+
         int[] buttonIds = {R.id.btnNum1, R.id.btnNum2, R.id.btnNum3, R.id.btnNum4, R.id.btnNum5, R.id.btnNum6, R.id.btnNum7, R.id.btnNum8, R.id.btnNum9};
         for (int i = 0; i < buttonIds.length; i++) {
             final int number = i + 1;
@@ -122,19 +154,25 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
                 }
             });
         }
-
-        Button btnBackHome = findViewById(R.id.btnBackHome);
-        if (btnBackHome != null) {
-            btnBackHome.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finish();
-                }
-            });
-        }
         // Start timer when game begins
         isTimerRunning = true;
         timerHandler.postDelayed(timerRunnable, 1000);
+    }
+
+    // Add method to update number counts
+    private void updateNumberCounts() {
+        if (sudokuBoard != null) {
+            int[] remainingCounts = sudokuBoard.getAllRemainingCounts();
+            for (int i = 0; i < 9; i++) {
+                if (numberCountViews[i] != null) {
+                    if (remainingCounts[i] > 0) {
+                        numberCountViews[i].setText(String.valueOf(remainingCounts[i]));
+                    } else {
+                        numberCountViews[i].setText("");
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -145,27 +183,32 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         }
     }
 
-    // Call this method whenever a mistake is made
-    public void onMistake() {
-        mistakes++;
-        if (tvMistakes != null) {
-            tvMistakes.setText("Mistakes: " + mistakes + "/3");
-        }
+    @Override
+    public void onCorrectBoxClick() {
+        score += Math.max(200,(int)(2000-1000*Math.log1p((double)secondsElapsed/10))); // Add 10 points for correct placement
+        tvScore.setText("Score: " + score);
+        updateNumberCounts(); // Update number counts when board changes
     }
 
-    // Call this method whenever a box is clicked correctly
-    public void onCorrectBoxClick() {
-        // Logarithmic score calculation based on elapsed time
-        int addScore = Math.max(200, (int)(5000 - 1000 * Math.log1p(secondsElapsed)));
-        score += addScore;
-        if (tvScore != null) {
-            tvScore.setText("Score: " + score);
+    @Override
+    public void onMistake() {
+        mistakes++;
+        tvMistakes.setText("Mistakes: " + mistakes + "/3");
+        if (mistakes >= 3) {
+            // Game over logic can be added here
+            Toast.makeText(this, "Game Over! Too many mistakes.", Toast.LENGTH_SHORT).show();
         }
+        updateNumberCounts(); // Update number counts when board changes
     }
 
     // Add this new method to handle when no cell is selected
     @Override
     public void onNoCellSelected() {
         Toast.makeText(this, "Please select a cell first", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBoardChanged() {
+        updateNumberCounts(); // Update number counts whenever board changes
     }
 }

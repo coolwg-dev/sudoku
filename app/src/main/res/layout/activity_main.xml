@@ -97,7 +97,7 @@
                 android:id="@+id/tvScore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Score: 29,728"
+                android:text="Score: 0"
                 android:textColor="#1976D2"
                 android:textStyle="bold"
                 android:textSize="18sp" />
@@ -310,7 +310,7 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="#FFF"
-                android:textColor="#333" />
+                android:textColor="#2196F3" />
             <TextView
                 android:id="@+id/btnNum1Small"
                 android:layout_width="match_parent"
@@ -334,7 +334,7 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="#FFF"
-                android:textColor="#333" />
+                android:textColor="#2196F3" />
             <TextView
                 android:id="@+id/btnNum2Small"
                 android:layout_width="match_parent"
@@ -358,7 +358,7 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="#FFF"
-                android:textColor="#333" />
+                android:textColor="#2196F3" />
             <TextView
                 android:id="@+id/btnNum3Small"
                 android:layout_width="match_parent"
@@ -382,7 +382,7 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="#FFF"
-                android:textColor="#333" />
+                android:textColor="#2196F3" />
             <TextView
                 android:id="@+id/btnNum4Small"
                 android:layout_width="match_parent"
@@ -406,7 +406,7 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="#FFF"
-                android:textColor="#333" />
+                android:textColor="#2196F3" />
             <TextView
                 android:id="@+id/btnNum5Small"
                 android:layout_width="match_parent"
@@ -430,7 +430,7 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="#FFF"
-                android:textColor="#333" />
+                android:textColor="#2196F3" />
             <TextView
                 android:id="@+id/btnNum6Small"
                 android:layout_width="match_parent"
@@ -454,7 +454,7 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="#FFF"
-                android:textColor="#333" />
+                android:textColor="#2196F3" />
             <TextView
                 android:id="@+id/btnNum7Small"
                 android:layout_width="match_parent"
@@ -478,7 +478,7 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="#FFF"
-                android:textColor="#333" />
+                android:textColor="#2196F3" />
             <TextView
                 android:id="@+id/btnNum8Small"
                 android:layout_width="match_parent"
@@ -502,7 +502,7 @@
                 android:textSize="24sp"
                 android:gravity="center"
                 android:background="#FFF"
-                android:textColor="#333" />
+                android:textColor="#2196F3" />
             <TextView
                 android:id="@+id/btnNum9Small"
                 android:layout_width="match_parent"

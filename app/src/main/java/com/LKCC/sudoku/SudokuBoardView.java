@@ -17,7 +17,7 @@ public class SudokuBoardView extends View {
     private int[][] initialBoard = new int[9][9];
     private int[][] solution = new int[9][9];
     private int selectedRow = -1, selectedCol = -1;
-    private Paint linePaint, textPaint, selectedPaint, relatedPaint, wrongPaint, matchPaint;
+    private Paint linePaint, majorLinePaint, textPaint, selectedPaint, relatedPaint, wrongPaint, matchPaint, userInputPaint;
     private Random random = new Random();
     private boolean highlightWrong = false;
     private boolean gameCompleted = false;
@@ -29,6 +29,7 @@ public class SudokuBoardView extends View {
         void onCorrectBoxClick();
         void onMistake();
         void onNoCellSelected(); // Added for no cell selected feedback
+        void onBoardChanged(); // Add this method for updating number counts
     }
 
     public void setSudokuListener(SudokuListener listener) {
@@ -57,6 +58,11 @@ public class SudokuBoardView extends View {
                 }
             }
 
+            // Notify that board has changed
+            if (sudokuListener != null) {
+                sudokuListener.onBoardChanged();
+            }
+
             invalidate();
             if (isBoardCompleteAndCorrect()) {
                 gameCompleted = true;
@@ -83,9 +89,16 @@ public class SudokuBoardView extends View {
     }
 
     private void init() {
+        // Minor grid lines (within 3x3 sections)
         linePaint = new Paint();
         linePaint.setColor(Color.BLACK);
-        linePaint.setStrokeWidth(4);
+        linePaint.setStrokeWidth(2);
+
+        // Major grid lines (3x3 section boundaries)
+        majorLinePaint = new Paint();
+        majorLinePaint.setColor(Color.BLACK);
+        majorLinePaint.setStrokeWidth(6);
+
         textPaint = new Paint();
         textPaint.setColor(Color.BLACK);
         textPaint.setTextSize(64);
@@ -100,9 +113,13 @@ public class SudokuBoardView extends View {
         wrongPaint.setTextAlign(Paint.Align.CENTER);
         wrongPaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD); // Make wrong numbers bold
         matchPaint = new Paint();
-        matchPaint.setColor(Color.parseColor("#90CAF9")); // Light blue for matching numbers
+        matchPaint.setColor(Color.RED);
         matchPaint.setTextSize(64);
         matchPaint.setTextAlign(Paint.Align.CENTER);
+        userInputPaint = new Paint();
+        userInputPaint.setColor(Color.BLUE); // Blue color for user input numbers
+        userInputPaint.setTextSize(64);
+        userInputPaint.setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
@@ -140,10 +157,20 @@ public class SudokuBoardView extends View {
             canvas.drawRect(selectedCol * cellSize, selectedRow * cellSize,
                     (selectedCol + 1) * cellSize, (selectedRow + 1) * cellSize, selectedPaint);
         }
-        // Draw grid
+        // Draw grid lines
+        // First draw all minor grid lines (thin lines for individual cells)
         for (int i = 0; i <= 9; i++) {
-            canvas.drawLine(i * cellSize, 0, i * cellSize, cellSize * 9, linePaint);
-            canvas.drawLine(0, i * cellSize, cellSize * 9, i * cellSize, linePaint);
+            // Skip lines that will be drawn as major lines
+            if (i % 3 != 0) {
+                canvas.drawLine(i * cellSize, 0, i * cellSize, cellSize * 9, linePaint);
+                canvas.drawLine(0, i * cellSize, cellSize * 9, i * cellSize, linePaint);
+            }
+        }
+
+        // Then draw major grid lines (thick lines for 3x3 section boundaries)
+        for (int i = 0; i <= 9; i += 3) {
+            canvas.drawLine(i * cellSize, 0, i * cellSize, cellSize * 9, majorLinePaint);
+            canvas.drawLine(0, i * cellSize, cellSize * 9, i * cellSize, majorLinePaint);
         }
         // Draw numbers
         for (int r = 0; r < 9; r++) {
@@ -151,10 +178,16 @@ public class SudokuBoardView extends View {
                 if (board[r][c] != 0) {
                     float x = c * cellSize + cellSize / 2f;
                     float y = r * cellSize + cellSize / 1.5f;
+
+                    // Check if this is a user-input number (not an initial clue)
+                    boolean isUserInput = (initialBoard[r][c] == 0);
+
                     if (related[r][c] && board[r][c] == selectedNumber && !(r == selectedRow && c == selectedCol)) {
                         canvas.drawText(String.valueOf(board[r][c]), x, y, matchPaint);
                     } else if (board[r][c] != solution[r][c]) {
                         canvas.drawText(String.valueOf(board[r][c]), x, y, wrongPaint);
+                    } else if (isUserInput) {
+                        canvas.drawText(String.valueOf(board[r][c]), x, y, userInputPaint);
                     } else {
                         canvas.drawText(String.valueOf(board[r][c]), x, y, textPaint);
                     }
@@ -264,6 +297,12 @@ public class SudokuBoardView extends View {
     public void showHint() {
         if (selectedRow != -1 && selectedCol != -1 && board[selectedRow][selectedCol] == 0) {
             board[selectedRow][selectedCol] = solution[selectedRow][selectedCol];
+
+            // Notify that board has changed
+            if (sudokuListener != null) {
+                sudokuListener.onBoardChanged();
+            }
+
             invalidate();
         }
     }
@@ -277,6 +316,12 @@ public class SudokuBoardView extends View {
                 return;
             }
             board[selectedRow][selectedCol] = 0;
+
+            // Notify that board has changed
+            if (sudokuListener != null) {
+                sudokuListener.onBoardChanged();
+            }
+
             invalidate();
         } else if (selectedRow == -1 || selectedCol == -1) {
             // Provide feedback that no cell is selected
@@ -310,5 +355,27 @@ public class SudokuBoardView extends View {
             }
         }
         return true;
+    }
+
+    // Method to get the remaining count for a specific number
+    public int getRemainingCount(int number) {
+        int count = 0;
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (solution[row][col] == number && board[row][col] != number) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    // Method to get all remaining counts
+    public int[] getAllRemainingCounts() {
+        int[] counts = new int[9];
+        for (int num = 1; num <= 9; num++) {
+            counts[num - 1] = getRemainingCount(num);
+        }
+        return counts;
     }
 }
