@@ -43,8 +43,11 @@ public class SudokuBoardView extends View {
                 return;
             }
 
+            // Always place the number on the board
+            board[selectedRow][selectedCol] = number;
+
+            // Check if it's correct for scoring/feedback
             if (solution[selectedRow][selectedCol] == number) {
-                board[selectedRow][selectedCol] = number;
                 if (sudokuListener != null) {
                     sudokuListener.onCorrectBoxClick();
                 }
@@ -53,6 +56,7 @@ public class SudokuBoardView extends View {
                     sudokuListener.onMistake();
                 }
             }
+
             invalidate();
             if (isBoardCompleteAndCorrect()) {
                 gameCompleted = true;
@@ -91,9 +95,10 @@ public class SudokuBoardView extends View {
         relatedPaint = new Paint();
         relatedPaint.setColor(Color.LTGRAY);
         wrongPaint = new Paint();
-        wrongPaint.setColor(Color.RED);
+        wrongPaint.setColor(Color.parseColor("#D32F2F")); // Darker, more visible red
         wrongPaint.setTextSize(64);
         wrongPaint.setTextAlign(Paint.Align.CENTER);
+        wrongPaint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD); // Make wrong numbers bold
         matchPaint = new Paint();
         matchPaint.setColor(Color.parseColor("#90CAF9")); // Light blue for matching numbers
         matchPaint.setTextSize(64);
