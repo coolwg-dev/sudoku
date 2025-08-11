@@ -6,6 +6,17 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/tvFinished"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Finished!"
+        android:textSize="22sp"
+        android:textColor="#388E3C"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
         android:id="@+id/tvTimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,7 +25,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="8dp" />
 
-    <com.example.sudoku.SudokuBoardView
+    <com.LKCC.sudoku.SudokuBoardView
         android:id="@+id/sudokuBoard"
         android:layout_width="383dp"
         android:layout_height="375dp"
