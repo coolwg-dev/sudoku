@@ -11,6 +11,7 @@ import android.view.View;
 import java.util.Random;
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class SudokuBoardView extends View {
     private int[][] board = new int[9][9];
@@ -26,6 +27,25 @@ public class SudokuBoardView extends View {
     private int clues = 30; // Default
     private boolean pencilMode = false; // Track if we're in pencil mode
     private boolean fastPencilMode = false; // Track if we're in fast pencil mode
+
+    // Move history for undo functionality
+    private Stack<MoveHistory> moveHistory = new Stack<>();
+
+    // Inner class to store move history
+    private static class MoveHistory {
+        int row, col;
+        int previousValue;
+        boolean[] previousPencilMarks; // Store pencil marks for this cell (1D array)
+
+        MoveHistory(int row, int col, int previousValue, boolean[] pencilMarksForCell) {
+            this.row = row;
+            this.col = col;
+            this.previousValue = previousValue;
+            this.previousPencilMarks = new boolean[10];
+            System.arraycopy(pencilMarksForCell, 0, this.previousPencilMarks, 0, 10);
+        }
+    }
+
     public interface SudokuListener {
         void onGameCompleted();
         void onCorrectBoxClick();
@@ -47,6 +67,10 @@ public class SudokuBoardView extends View {
             }
 
             if (pencilMode) {
+                // In pencil mode, save the state before toggling pencil mark
+                MoveHistory move = new MoveHistory(selectedRow, selectedCol, board[selectedRow][selectedCol], pencilMarks[selectedRow][selectedCol]);
+                moveHistory.push(move);
+
                 // In pencil mode, only add marks for numbers that are valid (allowed) in this position
                 if (isNumberAllowed(selectedRow, selectedCol, number)) {
                     // Toggle pencil mark
@@ -56,6 +80,10 @@ public class SudokuBoardView extends View {
                 // No mistakes counted in pencil mode
                 return;
             }
+
+            // Save current state before making the move (for undo)
+            MoveHistory move = new MoveHistory(selectedRow, selectedCol, board[selectedRow][selectedCol], pencilMarks[selectedRow][selectedCol]);
+            moveHistory.push(move);
 
             // Clear pencil marks when placing a number
             for (int n = 1; n <= 9; n++) {
@@ -398,6 +426,10 @@ public class SudokuBoardView extends View {
                 return;
             }
 
+            // Save current state before erasing (for undo)
+            MoveHistory move = new MoveHistory(selectedRow, selectedCol, board[selectedRow][selectedCol], pencilMarks[selectedRow][selectedCol]);
+            moveHistory.push(move);
+
             // Store the number that was erased for fast pencil mode updates
             int erasedNumber = board[selectedRow][selectedCol];
 
@@ -433,6 +465,10 @@ public class SudokuBoardView extends View {
         gameCompleted = false;
         selectedRow = -1;
         selectedCol = -1;
+
+        // Clear move history when starting a new game
+        clearMoveHistory();
+
         generateRandomSudoku();
         // Copy the puzzle state to initialBoard after removing numbers
         for (int r = 0; r < 9; r++) {
@@ -646,5 +682,39 @@ public class SudokuBoardView extends View {
             for (int j = 0; j < 3; j++)
                 if (board[startRow + i][startCol + j] == number) return false;
         return true;
+    }
+
+    // Undo the last move
+    public void undoLastMove() {
+        if (!moveHistory.isEmpty()) {
+            MoveHistory lastMove = moveHistory.pop();
+
+            // Restore the previous state
+            board[lastMove.row][lastMove.col] = lastMove.previousValue;
+
+            // Restore pencil marks for this cell
+            System.arraycopy(lastMove.previousPencilMarks, 0, pencilMarks[lastMove.row][lastMove.col], 0, 10);
+
+            // Select the cell that was undone
+            selectedRow = lastMove.row;
+            selectedCol = lastMove.col;
+
+            // Notify that board has changed
+            if (sudokuListener != null) {
+                sudokuListener.onBoardChanged();
+            }
+
+            invalidate();
+        }
+    }
+
+    // Check if undo is available
+    public boolean canUndo() {
+        return !moveHistory.isEmpty();
+    }
+
+    // Clear move history (useful when starting a new game)
+    public void clearMoveHistory() {
+        moveHistory.clear();
     }
 }

@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private TextView tvScore;
     private TextView tvDifficulty;
     private TextView tvPencilon;
+    private TextView tvfastPencilon;
     private SudokuBoardView sudokuBoard;
     private TextView[] numberCountViews = new TextView[9]; // Array to hold the small number count TextViews
     private TextView[] numberButtons = new TextView[9]; // Array to hold the number buttons
@@ -69,10 +70,19 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         tvScore = findViewById(R.id.tvScore);
         tvDifficulty = findViewById(R.id.tvDifficulty);
         tvPencilon = findViewById(R.id.tvPencilOn);
+        tvfastPencilon = findViewById(R.id.tvFastPencilOn);
 
         // Initialize score to 0
         score = 0;
         tvScore.setText("Score: " + score);
+
+        // Initialize mistakes to 0
+        mistakes = 0;
+        tvMistakes.setText("Mistakes: " + mistakes + "/3");
+
+        // Set pencil mode indicators to OFF (default state)
+        tvPencilon.setText("OFF");
+        tvfastPencilon.setText("OFF");
 
         // Set difficulty display to match the game difficulty
         switch (mode) {
@@ -176,10 +186,22 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
                 @Override
                 public void onClick(View v) {
                     sudokuBoard.togglefastPencilMode();
-                    tvPencilon.setText(sudokuBoard.isfastPencilMode() ? "ON" : "OFF");
+                    tvfastPencilon.setText(sudokuBoard.isfastPencilMode() ? "ON" : "OFF");
                 }
             });
         }
+
+        // Add undo button functionality
+        View btnUndo = findViewById(R.id.btnUndo);
+        if (btnUndo != null) {
+            btnUndo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sudokuBoard.undoLastMove();
+                }
+            });
+        }
+
         // Start timer when game begins
         isTimerRunning = true;
         timerHandler.postDelayed(timerRunnable, 1000);
