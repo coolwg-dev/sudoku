@@ -16,14 +16,16 @@ public class SudokuBoardView extends View {
     private int[][] board = new int[9][9];
     private int[][] initialBoard = new int[9][9];
     private int[][] solution = new int[9][9];
+    private boolean[][][] pencilMarks = new boolean[9][9][10]; // [row][col][number] - index 0 unused, 1-9 for numbers
     private int selectedRow = -1, selectedCol = -1;
-    private Paint linePaint, majorLinePaint, textPaint, selectedPaint, relatedPaint, wrongPaint, matchPaint, userInputPaint;
+    private Paint linePaint, majorLinePaint, textPaint, selectedPaint, relatedPaint, wrongPaint, matchPaint, userInputPaint, pencilPaint;
     private Random random = new Random();
     private boolean highlightWrong = false;
     private boolean gameCompleted = false;
     private SudokuListener sudokuListener;
     private int clues = 30; // Default
-
+    private boolean pencilMode = false; // Track if we're in pencil mode
+    private boolean fastPencilMode = false; // Track if we're in fast pencil mode
     public interface SudokuListener {
         void onGameCompleted();
         void onCorrectBoxClick();
@@ -44,8 +46,29 @@ public class SudokuBoardView extends View {
                 return;
             }
 
+            if (pencilMode) {
+                // In pencil mode, only add marks for numbers that are valid (allowed) in this position
+                if (isNumberAllowed(selectedRow, selectedCol, number)) {
+                    // Toggle pencil mark
+                    pencilMarks[selectedRow][selectedCol][number] = !pencilMarks[selectedRow][selectedCol][number];
+                    invalidate();
+                }
+                // No mistakes counted in pencil mode
+                return;
+            }
+
+            // Clear pencil marks when placing a number
+            for (int n = 1; n <= 9; n++) {
+                pencilMarks[selectedRow][selectedCol][n] = false;
+            }
+
             // Always place the number on the board
             board[selectedRow][selectedCol] = number;
+
+            // If fast pencil mode is enabled, update all related pencil marks
+            if (fastPencilMode) {
+                updatePencilMarksAfterNumberPlacement(selectedRow, selectedCol, number);
+            }
 
             // Check if it's correct for scoring/feedback
             if (solution[selectedRow][selectedCol] == number) {
@@ -120,8 +143,11 @@ public class SudokuBoardView extends View {
         userInputPaint.setColor(Color.BLUE); // Blue color for user input numbers
         userInputPaint.setTextSize(64);
         userInputPaint.setTextAlign(Paint.Align.CENTER);
+        pencilPaint = new Paint();
+        pencilPaint.setColor(Color.GRAY); // Color for pencil marks
+        pencilPaint.setTextSize(32);
+        pencilPaint.setTextAlign(Paint.Align.CENTER);
     }
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -172,7 +198,7 @@ public class SudokuBoardView extends View {
             canvas.drawLine(i * cellSize, 0, i * cellSize, cellSize * 9, majorLinePaint);
             canvas.drawLine(0, i * cellSize, cellSize * 9, i * cellSize, majorLinePaint);
         }
-        // Draw numbers
+        // Draw numbers and pencil marks
         for (int r = 0; r < 9; r++) {
             for (int c = 0; c < 9; c++) {
                 if (board[r][c] != 0) {
@@ -190,6 +216,62 @@ public class SudokuBoardView extends View {
                         canvas.drawText(String.valueOf(board[r][c]), x, y, userInputPaint);
                     } else {
                         canvas.drawText(String.valueOf(board[r][c]), x, y, textPaint);
+                    }
+                }
+
+                // Draw pencil marks only if cell is empty
+                if (board[r][c] == 0) {
+                    for (int n = 1; n <= 9; n++) {
+                        if (pencilMarks[r][c][n]) {
+                            float x, y;
+                            // Position pencil marks according to specification:
+                            // 1 = upper left, 2 = upper middle, 3 = upper right
+                            // 4 = middle left, 5 = center, 6 = middle right
+                            // 7 = lower left, 8 = lower middle, 9 = lower right
+                            switch (n) {
+                                case 1: // upper left
+                                    x = c * cellSize + cellSize * 0.2f;
+                                    y = r * cellSize + cellSize * 0.3f;
+                                    break;
+                                case 2: // upper middle
+                                    x = c * cellSize + cellSize * 0.5f;
+                                    y = r * cellSize + cellSize * 0.3f;
+                                    break;
+                                case 3: // upper right
+                                    x = c * cellSize + cellSize * 0.8f;
+                                    y = r * cellSize + cellSize * 0.3f;
+                                    break;
+                                case 4: // middle left
+                                    x = c * cellSize + cellSize * 0.2f;
+                                    y = r * cellSize + cellSize * 0.5f;
+                                    break;
+                                case 5: // center
+                                    x = c * cellSize + cellSize * 0.5f;
+                                    y = r * cellSize + cellSize * 0.5f;
+                                    break;
+                                case 6: // middle right
+                                    x = c * cellSize + cellSize * 0.8f;
+                                    y = r * cellSize + cellSize * 0.5f;
+                                    break;
+                                case 7: // lower left
+                                    x = c * cellSize + cellSize * 0.2f;
+                                    y = r * cellSize + cellSize * 0.8f;
+                                    break;
+                                case 8: // lower middle
+                                    x = c * cellSize + cellSize * 0.5f;
+                                    y = r * cellSize + cellSize * 0.8f;
+                                    break;
+                                case 9: // lower right
+                                    x = c * cellSize + cellSize * 0.8f;
+                                    y = r * cellSize + cellSize * 0.8f;
+                                    break;
+                                default:
+                                    x = c * cellSize + cellSize / 2f;
+                                    y = r * cellSize + cellSize / 2f;
+                                    break;
+                            }
+                            canvas.drawText(String.valueOf(n), x, y, pencilPaint);
+                        }
                     }
                 }
             }
@@ -315,7 +397,22 @@ public class SudokuBoardView extends View {
                 // This is a clue cell, can't be modified
                 return;
             }
+
+            // Store the number that was erased for fast pencil mode updates
+            int erasedNumber = board[selectedRow][selectedCol];
+
+            // Clear the number
             board[selectedRow][selectedCol] = 0;
+
+            // Clear any pencil marks for this cell
+            for (int n = 1; n <= 9; n++) {
+                pencilMarks[selectedRow][selectedCol][n] = false;
+            }
+
+            // If fast pencil mode is enabled, update pencil marks after erasing
+            if (fastPencilMode && erasedNumber != 0) {
+                updatePencilMarksAfterErase(selectedRow, selectedCol, erasedNumber);
+            }
 
             // Notify that board has changed
             if (sudokuListener != null) {
@@ -377,5 +474,177 @@ public class SudokuBoardView extends View {
             counts[num - 1] = getRemainingCount(num);
         }
         return counts;
+    }
+
+    // Toggle pencil mode
+    public void togglePencilMode() {
+        pencilMode = !pencilMode;
+        invalidate();
+    }
+
+    // Get pencil mode status
+    public boolean isPencilMode() {
+        return pencilMode;
+    }
+
+    // Set pencil mode
+    public void setPencilMode(boolean enabled) {
+        pencilMode = enabled;
+        invalidate();
+    }
+
+    public void togglefastPencilMode() {
+        fastPencilMode = !fastPencilMode;
+
+        if (fastPencilMode) {
+            // When turning on fast pencil mode, automatically fill all empty cells with valid pencil marks
+            fillAllPencilMarks();
+        } else {
+            // When turning off fast pencil mode, clear all pencil marks
+            clearAllPencilMarks();
+        }
+
+        invalidate();
+    }
+    public boolean isfastPencilMode() {
+        return fastPencilMode;
+    }
+
+    // Clear pencil marks from the selected cell
+    public void clearPencilMarks(int row, int col) {
+        if (row != -1 && col != -1) {
+            for (int n = 1; n <= 9; n++) {
+                pencilMarks[row][col][n] = false;
+            }
+
+            // Notify that board has changed
+            if (sudokuListener != null) {
+                sudokuListener.onBoardChanged();
+            }
+
+            invalidate();
+        }
+    }
+
+    // Method to fill all empty cells with valid pencil marks
+    private void fillAllPencilMarks() {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                // Only add pencil marks to empty cells
+                if (board[row][col] == 0) {
+                    // Clear existing pencil marks first
+                    for (int n = 1; n <= 9; n++) {
+                        pencilMarks[row][col][n] = false;
+                    }
+
+                    // Add all valid numbers as pencil marks
+                    for (int num = 1; num <= 9; num++) {
+                        if (isNumberAllowed(row, col, num)) {
+                            pencilMarks[row][col][num] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Notify that board has changed
+        if (sudokuListener != null) {
+            sudokuListener.onBoardChanged();
+        }
+    }
+
+    // Method to clear all pencil marks from the grid
+    private void clearAllPencilMarks() {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                for (int n = 1; n <= 9; n++) {
+                    pencilMarks[row][col][n] = false;
+                }
+            }
+        }
+
+        // Notify that board has changed
+        if (sudokuListener != null) {
+            sudokuListener.onBoardChanged();
+        }
+    }
+
+    // Method to update pencil marks after placing a number (for fast pencil mode)
+    private void updatePencilMarksAfterNumberPlacement(int row, int col, int number) {
+        // Remove the placed number from pencil marks in the same row
+        for (int c = 0; c < 9; c++) {
+            if (board[row][c] == 0) { // Only update empty cells
+                pencilMarks[row][c][number] = false;
+            }
+        }
+
+        // Remove the placed number from pencil marks in the same column
+        for (int r = 0; r < 9; r++) {
+            if (board[r][col] == 0) { // Only update empty cells
+                pencilMarks[r][col][number] = false;
+            }
+        }
+
+        // Remove the placed number from pencil marks in the same 3x3 box
+        int startRow = (row / 3) * 3;
+        int startCol = (col / 3) * 3;
+        for (int r = startRow; r < startRow + 3; r++) {
+            for (int c = startCol; c < startCol + 3; c++) {
+                if (board[r][c] == 0) { // Only update empty cells
+                    pencilMarks[r][c][number] = false;
+                }
+            }
+        }
+    }
+
+    // Method to update pencil marks after erasing a number (for fast pencil mode)
+    private void updatePencilMarksAfterErase(int row, int col, int erasedNumber) {
+        // First, add valid pencil marks back to the erased cell
+        if (board[row][col] == 0) { // Should be empty now
+            for (int num = 1; num <= 9; num++) {
+                if (isNumberAllowed(row, col, num)) {
+                    pencilMarks[row][col][num] = true;
+                }
+            }
+        }
+
+        // Then, check if the erased number can now be added back to related cells
+        // Check cells in the same row
+        for (int c = 0; c < 9; c++) {
+            if (board[row][c] == 0 && isNumberAllowed(row, c, erasedNumber)) {
+                pencilMarks[row][c][erasedNumber] = true;
+            }
+        }
+
+        // Check cells in the same column
+        for (int r = 0; r < 9; r++) {
+            if (board[r][col] == 0 && isNumberAllowed(r, col, erasedNumber)) {
+                pencilMarks[r][col][erasedNumber] = true;
+            }
+        }
+
+        // Check cells in the same 3x3 box
+        int startRow = (row / 3) * 3;
+        int startCol = (col / 3) * 3;
+        for (int r = startRow; r < startRow + 3; r++) {
+            for (int c = startCol; c < startCol + 3; c++) {
+                if (board[r][c] == 0 && isNumberAllowed(r, c, erasedNumber)) {
+                    pencilMarks[r][c][erasedNumber] = true;
+                }
+            }
+        }
+    }
+
+    // Check if a number is allowed in the given cell (row, col)
+    private boolean isNumberAllowed(int row, int col, int number) {
+        // A number is allowed if it's not already in the same row, column, or 3x3 box
+        for (int i = 0; i < 9; i++) {
+            if (board[row][i] == number || board[i][col] == number) return false;
+        }
+        int startRow = row - row % 3, startCol = col - col % 3;
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                if (board[startRow + i][startCol + j] == number) return false;
+        return true;
     }
 }

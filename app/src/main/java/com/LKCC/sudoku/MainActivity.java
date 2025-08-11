@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private TextView tvMistakes;
     private TextView tvScore;
     private TextView tvDifficulty;
+    private TextView tvPencilon;
     private SudokuBoardView sudokuBoard;
     private TextView[] numberCountViews = new TextView[9]; // Array to hold the small number count TextViews
 
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         tvMistakes = findViewById(R.id.tvMistakes);
         tvScore = findViewById(R.id.tvScore);
         tvDifficulty = findViewById(R.id.tvDifficulty);
+        tvPencilon = findViewById(R.id.tvPencilOn);
 
         // Initialize score to 0
         score = 0;
@@ -151,6 +153,28 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
                 @Override
                 public void onClick(View v) {
                     finish();
+                }
+            });
+        }
+
+        View pencilmode = findViewById(R.id.btnPencil);
+        if(pencilmode!=null){
+            pencilmode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sudokuBoard.togglePencilMode();
+                    tvPencilon.setText(sudokuBoard.isPencilMode() ? "ON" : "OFF");
+                }
+            });
+        }
+
+        View fastpencilmode = findViewById(R.id.btnFastPencil);
+        if(fastpencilmode!=null){
+            fastpencilmode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sudokuBoard.togglefastPencilMode();
+                    tvPencilon.setText(sudokuBoard.isfastPencilMode() ? "ON" : "OFF");
                 }
             });
         }
