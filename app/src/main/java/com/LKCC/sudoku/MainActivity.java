@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private Handler timerHandler = new Handler();
     private int secondsElapsed = 0;
     private boolean isTimerRunning = false;
+    private boolean isPaused = false; // Add pause state tracking
     private TextView tvTimer;
     private TextView tvFinished;
     private int difficulty = 0;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private SudokuBoardView sudokuBoard;
     private TextView[] numberCountViews = new TextView[9]; // Array to hold the small number count TextViews
     private TextView[] numberButtons = new TextView[9]; // Array to hold the number buttons
+    private View btnPause; // Change to View since it's an ImageView in layout
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +101,13 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
 
         sudokuBoard = findViewById(R.id.sudokuBoard);
         sudokuBoard.setSudokuListener(this);
+
+        // Set default modes to OFF - ensure they start in the correct state
+        sudokuBoard.setPencilMode(false);
+        // Only toggle fast pencil mode if it's currently on (since we want it OFF)
+        if (sudokuBoard.isfastPencilMode()) {
+            sudokuBoard.togglefastPencilMode();
+        }
 
         // Initialize number count views
         int[] smallButtonIds = {R.id.btnNum1Small, R.id.btnNum2Small, R.id.btnNum3Small,
@@ -202,9 +211,43 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
             });
         }
 
+        // Add pause button functionality
+        btnPause = findViewById(R.id.btnPause);
+        if (btnPause != null) {
+            btnPause.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    togglePause();
+                }
+            });
+        }
+
         // Start timer when game begins
         isTimerRunning = true;
         timerHandler.postDelayed(timerRunnable, 1000);
+    }
+
+    // Method to toggle pause state
+    private void togglePause() {
+        isPaused = !isPaused;
+        if (isPaused) {
+            // Pause the game
+            isTimerRunning = false;
+            sudokuBoard.setPaused(true); // Notify board it's paused
+            // Change icon to play button (resume) - using Android's built-in icon
+            if (btnPause instanceof android.widget.ImageView) {
+                ((android.widget.ImageView) btnPause).setImageResource(android.R.drawable.ic_media_play);
+            }
+        } else {
+            // Resume the game
+            isTimerRunning = true;
+            sudokuBoard.setPaused(false); // Notify board it's resumed
+            // Change icon back to pause button
+            if (btnPause instanceof android.widget.ImageView) {
+                ((android.widget.ImageView) btnPause).setImageResource(android.R.drawable.ic_media_pause);
+            }
+            timerHandler.postDelayed(timerRunnable, 1000);
+        }
     }
 
     // Add method to update number counts

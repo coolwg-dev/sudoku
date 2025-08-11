@@ -19,7 +19,7 @@ public class SudokuBoardView extends View {
     private int[][] solution = new int[9][9];
     private boolean[][][] pencilMarks = new boolean[9][9][10]; // [row][col][number] - index 0 unused, 1-9 for numbers
     private int selectedRow = -1, selectedCol = -1;
-    private Paint linePaint, majorLinePaint, textPaint, selectedPaint, relatedPaint, wrongPaint, matchPaint, userInputPaint, pencilPaint;
+    private Paint linePaint, majorLinePaint, textPaint, selectedPaint, relatedPaint, wrongPaint, matchPaint, userInputPaint, pencilPaint, pauseOverlayPaint;
     private Random random = new Random();
     private boolean highlightWrong = false;
     private boolean gameCompleted = false;
@@ -27,6 +27,7 @@ public class SudokuBoardView extends View {
     private int clues = 30; // Default
     private boolean pencilMode = false; // Track if we're in pencil mode
     private boolean fastPencilMode = false; // Track if we're in fast pencil mode
+    private boolean isPaused = false; // Track if game is paused
 
     // Move history for undo functionality
     private Stack<MoveHistory> moveHistory = new Stack<>();
@@ -58,7 +59,10 @@ public class SudokuBoardView extends View {
         this.sudokuListener = listener;
     }
 
+    // Override setNumber to prevent actions when paused
     public void setNumber(int number) {
+        if (isPaused) return; // Prevent action when paused
+
         if (selectedRow != -1 && selectedCol != -1 && !gameCompleted) {
             // Check if the cell is not a clue (initial cell)
             if (initialBoard[selectedRow][selectedCol] != 0) {
@@ -175,6 +179,10 @@ public class SudokuBoardView extends View {
         pencilPaint.setColor(Color.GRAY); // Color for pencil marks
         pencilPaint.setTextSize(32);
         pencilPaint.setTextAlign(Paint.Align.CENTER);
+
+        // Pause overlay paint
+        pauseOverlayPaint = new Paint();
+        pauseOverlayPaint.setColor(Color.argb(150, 0, 0, 0)); // Semi-transparent black
     }
     @Override
     protected void onDraw(Canvas canvas) {
@@ -304,10 +312,20 @@ public class SudokuBoardView extends View {
                 }
             }
         }
+
+        // Draw pause overlay if the game is paused
+        if (isPaused) {
+            canvas.drawRect(0, 0, width, height, pauseOverlayPaint);
+        }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Prevent interaction when game is paused
+        if (isPaused) {
+            return true;
+        }
+
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             int cellSize = Math.min(getWidth(), getHeight()) / 9;
             int col = (int) (event.getX() / cellSize);
@@ -405,6 +423,8 @@ public class SudokuBoardView extends View {
 
     // Add hint logic
     public void showHint() {
+        if (isPaused) return; // Prevent action when paused
+
         if (selectedRow != -1 && selectedCol != -1 && board[selectedRow][selectedCol] == 0) {
             board[selectedRow][selectedCol] = solution[selectedRow][selectedCol];
 
@@ -419,6 +439,8 @@ public class SudokuBoardView extends View {
 
     // Add erase function
     public void eraseCell() {
+        if (isPaused) return; // Prevent action when paused
+
         if (selectedRow != -1 && selectedCol != -1 && !gameCompleted) {
             // Check if the cell is not a clue (initial cell)
             if (initialBoard[selectedRow][selectedCol] != 0) {
@@ -686,6 +708,8 @@ public class SudokuBoardView extends View {
 
     // Undo the last move
     public void undoLastMove() {
+        if (isPaused) return; // Prevent action when paused
+
         if (!moveHistory.isEmpty()) {
             MoveHistory lastMove = moveHistory.pop();
 
@@ -716,5 +740,28 @@ public class SudokuBoardView extends View {
     // Clear move history (useful when starting a new game)
     public void clearMoveHistory() {
         moveHistory.clear();
+    }
+
+    // Pause the game
+    public void pauseGame() {
+        isPaused = true;
+        invalidate();
+    }
+
+    // Resume the game
+    public void resumeGame() {
+        isPaused = false;
+        invalidate();
+    }
+
+    // Check if the game is paused
+    public boolean isGamePaused() {
+        return isPaused;
+    }
+
+    // Set pause state (called from MainActivity)
+    public void setPaused(boolean paused) {
+        isPaused = paused;
+        invalidate(); // Redraw to show/hide overlay
     }
 }
