@@ -1,4 +1,4 @@
-package com.example.sudoku;
+package com.LKCC.sudoku;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,3 +33,4 @@ public class HistoryActivity extends AppCompatActivity {
         // TODO: Implement personal history logic
     }
 }
+

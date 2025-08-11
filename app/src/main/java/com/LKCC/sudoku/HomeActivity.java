@@ -1,4 +1,4 @@
-package com.example.sudoku;
+package com.LKCC.sudoku;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,3 +36,4 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 }
+
