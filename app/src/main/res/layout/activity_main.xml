@@ -1,139 +1,537 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:background="#F8F8F8">
 
-    <TextView
-        android:id="@+id/tvFinished"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Finished!"
-        android:textSize="22sp"
-        android:textColor="#388E3C"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        android:layout_marginBottom="4dp" />
-
-    <TextView
-        android:id="@+id/tvTimer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="00:00"
-        android:textSize="20sp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="8dp" />
-
-    <com.LKCC.sudoku.SudokuBoardView
-        android:id="@+id/sudokuBoard"
-        android:layout_width="383dp"
-        android:layout_height="375dp"
-        android:layout_gravity="center" />
-
+    <!-- Header Bar -->
     <LinearLayout
-        android:id="@+id/numberPad"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:id="@+id/headerBar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#FFFFFF"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
 
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:contentDescription="Back" />
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" >
+        <Space android:layout_width="8dp" android:layout_height="0dp" />
 
-                <Button
-                    android:id="@+id/btn1"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:baselineAligned="false"
-                    android:text="1" />
+        <ImageView
+            android:id="@+id/btnShare"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_menu_share"
+            android:contentDescription="Share" />
 
-                <Button
-                    android:id="@+id/btn2"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="2" />
+        <Space android:layout_width="8dp" android:layout_height="0dp" />
 
-                <Button
-                    android:id="@+id/btn3"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="3" />
-            </TableRow>
+        <ImageView
+            android:id="@+id/btnPause"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_media_pause"
+            android:contentDescription="Pause" />
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" >
+        <Space android:layout_width="8dp" android:layout_height="0dp" />
 
-                <Button
-                    android:id="@+id/btn4"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="4" />
+        <ImageView
+            android:id="@+id/btnPalette"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_menu_gallery"
+            android:contentDescription="Color Palette" />
 
-                <Button
-                    android:id="@+id/btn5"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="5" />
+        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
 
-                <Button
-                    android:id="@+id/btn6"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="6" />
-
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" >
-
-                <Button
-                    android:id="@+id/btn7"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="7" />
-
-                <Button
-                    android:id="@+id/btn8"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="8" />
-
-                <Button
-                    android:id="@+id/btn9"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:text="9" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </TableLayout>
+        <ImageView
+            android:id="@+id/btnSettings"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_menu_manage"
+            android:contentDescription="Settings" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnHint"
-        android:layout_width="wrap_content"
+    <!-- Status Bar -->
+    <LinearLayout
+        android:id="@+id/statusBar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Hint"
-        android:layout_gravity="center"
-        android:layout_marginTop="8dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@id/headerBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
-    <Button
-        android:id="@+id/btnBackHome"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/tvMistakes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mistakes: 2/3"
+            android:textColor="#B00020"
+            android:textSize="16sp" />
+
+        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+            <TextView
+                android:id="@+id/tvScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Score: 29,728"
+                android:textColor="#1976D2"
+                android:textStyle="bold"
+                android:textSize="18sp" />
+            <TextView
+                android:id="@+id/tvDifficulty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Expert"
+                android:textColor="#757575"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="01:08:20"
+            android:textColor="#333333"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Sudoku Grid -->
+    <GridLayout
+        android:id="@+id/sudokuGrid"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/statusBar"
+        app:layout_constraintBottom_toTopOf="@id/actionBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:rowCount="9"
+        android:columnCount="9"
+        android:background="#FFF"
+        android:elevation="2dp">
+        <!-- Sudoku cells will be added programmatically or via include -->
+    </GridLayout>
+
+    <!-- Action Bar -->
+    <LinearLayout
+        android:id="@+id/actionBar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Back to Home"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toTopOf="@id/keypadBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
-</LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+            <ImageView
+                android:id="@+id/btnUndo"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@android:drawable/ic_menu_revert"
+                android:contentDescription="Undo" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Undo"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <Space android:layout_width="16dp" android:layout_height="0dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+            <ImageView
+                android:id="@+id/btnErase"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Erase" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Erase"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <Space android:layout_width="16dp" android:layout_height="0dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:id="@+id/btnFastPencil"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@android:drawable/ic_menu_edit"
+                    android:contentDescription="Fast Pencil" />
+                <TextView
+                    android:id="@+id/tvFastPencilOn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ON"
+                    android:textColor="#1976D2"
+                    android:textSize="12sp"
+                    android:layout_marginStart="2dp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fast Pencil"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <Space android:layout_width="16dp" android:layout_height="0dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:id="@+id/btnPencil"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@android:drawable/ic_menu_edit"
+                    android:contentDescription="Pencil" />
+                <TextView
+                    android:id="@+id/tvPencilOn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ON"
+                    android:textColor="#1976D2"
+                    android:textSize="12sp"
+                    android:layout_marginStart="2dp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pencil"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+            <Button
+                android:id="@+id/btnHint"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Hint"
+                android:backgroundTint="#E3F2FD"
+                android:textColor="#1976D2"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
+            <TextView
+                android:id="@+id/tvHintCount"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/circle_light_blue"
+                android:text="30"
+                android:textColor="#1976D2"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:layout_marginStart="-12dp"
+                android:elevation="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Keypad Bar -->
+    <LinearLayout
+        android:id="@+id/keypadBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <!-- Keypad Numbers: Always show 9 numbers in order -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/btnNum1"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="1"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="#FFF"
+                android:textColor="#333" />
+            <TextView
+                android:id="@+id/btnNum1Small"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text=""
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#757575" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/btnNum2"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="2"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="#FFF"
+                android:textColor="#333" />
+            <TextView
+                android:id="@+id/btnNum2Small"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text=""
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#757575" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/btnNum3"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="3"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="#FFF"
+                android:textColor="#333" />
+            <TextView
+                android:id="@+id/btnNum3Small"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text="4"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#757575" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/btnNum4"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="4"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="#FFF"
+                android:textColor="#333" />
+            <TextView
+                android:id="@+id/btnNum4Small"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text="3"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#757575" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/btnNum5"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="5"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="#FFF"
+                android:textColor="#333" />
+            <TextView
+                android:id="@+id/btnNum5Small"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text="5"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#757575" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/btnNum6"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="6"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="#FFF"
+                android:textColor="#333" />
+            <TextView
+                android:id="@+id/btnNum6Small"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text=""
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#757575" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/btnNum7"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="7"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="#FFF"
+                android:textColor="#333" />
+            <TextView
+                android:id="@+id/btnNum7Small"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text="2"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#757575" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/btnNum8"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="8"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="#FFF"
+                android:textColor="#333" />
+            <TextView
+                android:id="@+id/btnNum8Small"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text=""
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#757575" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/btnNum9"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="9"
+                android:textSize="24sp"
+                android:gravity="center"
+                android:background="#FFF"
+                android:textColor="#333" />
+            <TextView
+                android:id="@+id/btnNum9Small"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:text=""
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textColor="#757575" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
