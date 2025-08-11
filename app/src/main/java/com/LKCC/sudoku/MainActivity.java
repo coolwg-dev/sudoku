@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private TextView tvPencilon;
     private SudokuBoardView sudokuBoard;
     private TextView[] numberCountViews = new TextView[9]; // Array to hold the small number count TextViews
+    private TextView[] numberButtons = new TextView[9]; // Array to hold the number buttons
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         for (int i = 0; i < buttonIds.length; i++) {
             final int number = i + 1;
             TextView btn = findViewById(buttonIds[i]);
+            numberButtons[i] = btn; // Initialize the number button in the array
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -193,6 +195,19 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
                         numberCountViews[i].setText(String.valueOf(remainingCounts[i]));
                     } else {
                         numberCountViews[i].setText("");
+                    }
+                }
+
+                // Update number button appearance and clickability
+                if (numberButtons[i] != null) {
+                    if (remainingCounts[i] <= 0) {
+                        // Make button transparent and unclickable when no numbers left
+                        numberButtons[i].setAlpha(0f);
+                        numberButtons[i].setClickable(false);
+                    } else {
+                        // Restore normal appearance and clickability
+                        numberButtons[i].setAlpha(1f);
+                        numberButtons[i].setClickable(true);
                     }
                 }
             }
