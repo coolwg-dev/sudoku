@@ -25,8 +25,10 @@ public class SudokuBoardView extends View {
     private int clues = 30; // Default
 
     public interface SudokuListener {
-        // Define callback methods as needed, e.g. onCellSelected, onGameCompleted
         void onGameCompleted();
+        void onCorrectBoxClick();
+        void onMistake();
+        void onNoCellSelected(); // Added for no cell selected feedback
     }
 
     public void setSudokuListener(SudokuListener listener) {
@@ -34,16 +36,34 @@ public class SudokuBoardView extends View {
     }
 
     public void setNumber(int number) {
-        // Implement logic to set the number in the selected cell
         if (selectedRow != -1 && selectedCol != -1 && !gameCompleted) {
-            board[selectedRow][selectedCol] = number;
+            // Check if the cell is not a clue (initial cell)
+            if (initialBoard[selectedRow][selectedCol] != 0) {
+                // This is a clue cell, can't be modified
+                return;
+            }
+
+            if (solution[selectedRow][selectedCol] == number) {
+                board[selectedRow][selectedCol] = number;
+                if (sudokuListener != null) {
+                    sudokuListener.onCorrectBoxClick();
+                }
+            } else {
+                if (sudokuListener != null) {
+                    sudokuListener.onMistake();
+                }
+            }
             invalidate();
-            // Check if the board is complete and correct
             if (isBoardCompleteAndCorrect()) {
                 gameCompleted = true;
                 if (sudokuListener != null) {
                     sudokuListener.onGameCompleted();
                 }
+            }
+        } else if (selectedRow == -1 || selectedCol == -1) {
+            // Provide feedback that no cell is selected
+            if (sudokuListener != null) {
+                sudokuListener.onNoCellSelected();
             }
         }
     }
@@ -205,14 +225,34 @@ public class SudokuBoardView extends View {
 
     // Update generateRandomSudoku to use removeNumbers
     private void generateRandomSudoku() {
+        // Clear all arrays first
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                solution[r][c] = 0;
+                board[r][c] = 0;
+                initialBoard[r][c] = 0;
+            }
+        }
+
+        // Fill the solution board with a valid Sudoku
         fillBoard(solution);
-        for (int r = 0; r < 9; r++)
-            for (int c = 0; c < 9; c++)
-                initialBoard[r][c] = solution[r][c];
-        for (int r = 0; r < 9; r++)
-            for (int c = 0; c < 9; c++)
+
+        // Copy solution to board
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
                 board[r][c] = solution[r][c];
+            }
+        }
+
+        // Remove numbers to create the puzzle
         removeNumbers(board, clues);
+
+        // Save the puzzle state as initial board (clues)
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                initialBoard[r][c] = board[r][c];
+            }
+        }
     }
 
     // Add hint logic
@@ -223,8 +263,36 @@ public class SudokuBoardView extends View {
         }
     }
 
+    // Add erase function
+    public void eraseCell() {
+        if (selectedRow != -1 && selectedCol != -1 && !gameCompleted) {
+            // Check if the cell is not a clue (initial cell)
+            if (initialBoard[selectedRow][selectedCol] != 0) {
+                // This is a clue cell, can't be modified
+                return;
+            }
+            board[selectedRow][selectedCol] = 0;
+            invalidate();
+        } else if (selectedRow == -1 || selectedCol == -1) {
+            // Provide feedback that no cell is selected
+            if (sudokuListener != null) {
+                sudokuListener.onNoCellSelected();
+            }
+        }
+    }
+
     public void generateNewPuzzle() {
+        // Reset game state
+        gameCompleted = false;
+        selectedRow = -1;
+        selectedCol = -1;
         generateRandomSudoku();
+        // Copy the puzzle state to initialBoard after removing numbers
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                initialBoard[r][c] = board[r][c];
+            }
+        }
         invalidate();
     }
 

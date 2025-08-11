@@ -121,26 +121,6 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <!-- Sudoku Grid -->
-    <GridLayout
-        android:id="@+id/sudokuGrid"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/statusBar"
-        app:layout_constraintBottom_toTopOf="@id/actionBar"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:rowCount="9"
-        android:columnCount="9"
-        android:background="#FFF"
-        android:elevation="2dp">
-        <!-- Sudoku cells will be added programmatically or via include -->
-    </GridLayout>
-
     <!-- Action Bar -->
     <LinearLayout
         android:id="@+id/actionBar"
@@ -533,5 +513,36 @@
                 android:textColor="#757575" />
         </LinearLayout>
     </LinearLayout>
+
+    <!-- Add tvFinished for game completion message -->
+    <TextView
+        android:id="@+id/tvFinished"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Game Finished!"
+        android:textSize="24sp"
+        android:textColor="#388E3C"
+        android:background="#E0F2F1"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/statusBar"
+        app:layout_constraintBottom_toTopOf="@id/actionBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:gravity="center" />
+
+    <!-- Change sudokuGrid to use the correct id for SudokuBoardView -->
+    <com.LKCC.sudoku.SudokuBoardView
+        android:id="@+id/sudokuBoard"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/statusBar"
+        app:layout_constraintBottom_toTopOf="@id/actionBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
