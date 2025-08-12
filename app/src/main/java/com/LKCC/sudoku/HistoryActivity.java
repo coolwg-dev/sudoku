@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import androidx.appcompat.app.AlertDialog;
 import java.util.List;
 
@@ -129,7 +130,7 @@ public class HistoryActivity extends AppCompatActivity {
         headerView.setText(game.getDate() + " - " + status);
         headerView.setTextSize(14);
         headerView.setTextColor(Color.parseColor(statusColor));
-        headerView.setTextStyle(android.graphics.Typeface.BOLD);
+        headerView.setTypeface(null, Typeface.BOLD);
         gameLayout.addView(headerView);
 
         // Game details

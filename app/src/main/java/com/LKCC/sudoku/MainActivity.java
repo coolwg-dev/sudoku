@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
 
     @Override
     public void onCorrectBoxClick() {
-        score += Math.max(200,(int)(2000-1000*Math.log1p((double)secondsElapsed/10))); // Add 10 points for correct placement
+        score += Math.max(200,(int)((6000-1000*Math.log1p((double)secondsElapsed/10))/3)); // Add 10 points for correct placement
         tvScore.setText("Score: " + score);
         updateNumberCounts(); // Update number counts when board changes
     }

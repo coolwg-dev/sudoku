@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class GameHistoryManager {
     private static final String PREF_NAME = "sudoku_game_history";
@@ -73,8 +75,13 @@ public class GameHistoryManager {
             }
         }
 
-        // Sort by date (newest first) - simple string comparison works for our date format
-        historyList.sort((h1, h2) -> h2.getDate().compareTo(h1.getDate()));
+        // Sort by date (newest first) - using Collections.sort for API compatibility
+        Collections.sort(historyList, new Comparator<GameHistory>() {
+            @Override
+            public int compare(GameHistory h1, GameHistory h2) {
+                return h2.getDate().compareTo(h1.getDate());
+            }
+        });
 
         return historyList;
     }
