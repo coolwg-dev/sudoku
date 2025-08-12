@@ -45,11 +45,15 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private TextView[] numberCountViews = new TextView[9]; // Array to hold the small number count TextViews
     private TextView[] numberButtons = new TextView[9]; // Array to hold the number buttons
     private View btnPause; // Change to View since it's an ImageView in layout
+    private GameHistoryManager historyManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize history manager
+        historyManager = new GameHistoryManager(this);
 
         // Get difficulty from intent
         difficulty = getIntent().getIntExtra("difficulty", 0);
@@ -285,6 +289,11 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         if (tvFinished != null) {
             tvFinished.setVisibility(View.VISIBLE);
         }
+
+        // Save completed game to history
+        saveGameToHistory(true);
+
+        Toast.makeText(this, "Congratulations! Game completed!", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -299,8 +308,12 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         mistakes++;
         tvMistakes.setText("Mistakes: " + mistakes + "/3");
         if (mistakes >= 3) {
-            // Game over logic can be added here
+            // Game over logic
+            isTimerRunning = false;
             Toast.makeText(this, "Game Over! Too many mistakes.", Toast.LENGTH_SHORT).show();
+
+            // Save failed game to history
+            saveGameToHistory(false);
         }
         updateNumberCounts(); // Update number counts when board changes
     }
@@ -314,5 +327,41 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     @Override
     public void onBoardChanged() {
         updateNumberCounts(); // Update number counts whenever board changes
+    }
+
+    private void saveGameToHistory(boolean completed) {
+        String difficultyString;
+        switch (mode) {
+            case EASY:
+                difficultyString = "Easy";
+                break;
+            case MEDIUM:
+                difficultyString = "Medium";
+                break;
+            case HARD:
+                difficultyString = "Hard";
+                break;
+            default:
+                difficultyString = "Easy";
+        }
+
+        GameHistory gameHistory = new GameHistory(
+            difficultyString,
+            secondsElapsed,
+            score,
+            mistakes,
+            completed
+        );
+
+        historyManager.saveGameHistory(gameHistory);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Save game history if the game was in progress when destroyed
+        if (isTimerRunning && secondsElapsed > 30) { // Only save if played for more than 30 seconds
+            saveGameToHistory(false);
+        }
     }
 }

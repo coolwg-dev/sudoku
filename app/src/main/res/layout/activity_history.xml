@@ -1,24 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp">
+    android:padding="16dp"
+    android:background="#f5f5f5">
 
-    <TextView
-        android:id="@+id/tvHistory"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Personal History (Coming Soon)"
-        android:textSize="18sp" />
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnBackHome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back to Home"
-        android:layout_gravity="center"
-        android:layout_marginTop="24dp" />
+        <!-- Header -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Personal History"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="#333"
+            android:layout_marginBottom="20dp" />
 
-</LinearLayout>
+        <!-- Statistics Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/dialog_holo_light_frame"
+            android:padding="16dp"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Statistics"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#333"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tvTotalGames"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total Games: 0"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvCompletedGames"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Completed Games: 0"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvCompletionRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Completion Rate: 0%"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvHighestScore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Highest Score: 0"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Best Times:"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/tvBestTimeEasy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Easy: --:--"
+                android:textSize="14sp"
+                android:layout_marginLeft="16dp" />
+
+            <TextView
+                android:id="@+id/tvBestTimeMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Medium: --:--"
+                android:textSize="14sp"
+                android:layout_marginLeft="16dp" />
+
+            <TextView
+                android:id="@+id/tvBestTimeHard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hard: --:--"
+                android:textSize="14sp"
+                android:layout_marginLeft="16dp" />
+
+        </LinearLayout>
+
+        <!-- Recent Games Header -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recent Games"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333"
+            android:layout_marginBottom="12dp" />
+
+        <!-- History List -->
+        <LinearLayout
+            android:id="@+id/llHistoryList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Clear History Button -->
+        <Button
+            android:id="@+id/btnClearHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Clear History"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#ff6b6b" />
+
+        <!-- Back Button -->
+        <Button
+            android:id="@+id/btnBackHome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Back to Home"
+            android:backgroundTint="#4CAF50" />
+
+    </LinearLayout>
+</ScrollView>
