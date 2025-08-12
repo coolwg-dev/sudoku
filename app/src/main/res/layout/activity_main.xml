@@ -253,31 +253,34 @@
         <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
             <Button
                 android:id="@+id/btnHint"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="Hint"
                 android:backgroundTint="#E3F2FD"
-                android:textColor="#1976D2"
                 android:paddingStart="16dp"
-                android:paddingEnd="16dp" />
+                android:paddingEnd="16dp"
+                android:text="Hint"
+                android:textColor="#1976D2" />
+
             <TextView
                 android:id="@+id/tvHintCount"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:background="@drawable/circle_light_blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:elevation="2dp"
+                android:gravity="center"
                 android:text="30"
                 android:textColor="#1976D2"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:layout_marginStart="-12dp"
-                android:elevation="2dp" />
+                android:textSize="14sp" />
+
         </LinearLayout>
+
     </LinearLayout>
 
     <!-- Keypad Bar -->

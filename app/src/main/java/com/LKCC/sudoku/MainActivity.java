@@ -36,11 +36,14 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     }
     private GameMode mode = GameMode.EASY;
     private int mistakes = 0;
+    private int hintsUsed = 0;
+    private static final int MAX_HINTS = 3;
     private TextView tvMistakes;
     private TextView tvScore;
     private TextView tvDifficulty;
     private TextView tvPencilon;
     private TextView tvfastPencilon;
+    private TextView tvHintCount;
     private SudokuBoardView sudokuBoard;
     private TextView[] numberCountViews = new TextView[9]; // Array to hold the small number count TextViews
     private TextView[] numberButtons = new TextView[9]; // Array to hold the number buttons
@@ -77,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         tvDifficulty = findViewById(R.id.tvDifficulty);
         tvPencilon = findViewById(R.id.tvPencilOn);
         tvfastPencilon = findViewById(R.id.tvFastPencilOn);
+        tvHintCount = findViewById(R.id.tvHintCount); // Initialize hint count TextView
 
         // Initialize score to 0
         score = 0;
@@ -156,9 +160,12 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         btnHint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sudokuBoard.showHint();
+                useHint();
             }
         });
+
+        // Initialize hint count display
+        updateHintCountDisplay();
 
         // Add erase button functionality
         View btnErase = findViewById(R.id.btnErase);
@@ -363,5 +370,27 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         if (isTimerRunning && secondsElapsed > 30) { // Only save if played for more than 30 seconds
             saveGameToHistory(false);
         }
+    }
+
+    // Method to use a hint
+    private void useHint() {
+        if (hintsUsed < MAX_HINTS) {
+            sudokuBoard.showHint();
+            hintsUsed++;
+            updateHintCountDisplay(); // Update hint count display after using a hint
+        } else {
+            Toast.makeText(this, "No more hints available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Method to update the hint count display
+    private void updateHintCountDisplay() {
+        tvHintCount.setText(String.valueOf(MAX_HINTS - hintsUsed));
+    }
+
+    // Method to reset hints (useful for new game functionality)
+    private void resetHints() {
+        hintsUsed = 0;
+        updateHintCountDisplay();
     }
 }
