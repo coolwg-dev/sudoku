@@ -764,4 +764,46 @@ public class SudokuBoardView extends View {
         isPaused = paused;
         invalidate(); // Redraw to show/hide overlay
     }
+
+    // Methods for save/load functionality
+    public int[][] getCurrentBoard() {
+        return board;
+    }
+
+    public int[][] getInitialBoard() {
+        return initialBoard;
+    }
+
+    public int[][] getSolution() {
+        return solution;
+    }
+
+    public boolean[][][] getPencilMarks() {
+        return pencilMarks;
+    }
+
+    public void loadGameState(int[][] currentBoard, int[][] initialBoard, int[][] solution, boolean[][][] pencilMarks) {
+        // Copy the board states
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                this.board[i][j] = currentBoard[i][j];
+                this.initialBoard[i][j] = initialBoard[i][j];
+                this.solution[i][j] = solution[i][j];
+                // Copy pencil marks
+                for (int k = 0; k < 10; k++) {
+                    this.pencilMarks[i][j][k] = pencilMarks[i][j][k];
+                }
+            }
+        }
+
+        // Clear selection and move history when loading
+        selectedRow = -1;
+        selectedCol = -1;
+        clearMoveHistory();
+
+        // Reset game completion state
+        gameCompleted = false;
+
+        invalidate();
+    }
 }

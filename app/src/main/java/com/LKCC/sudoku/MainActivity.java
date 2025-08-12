@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private TextView[] numberCountViews = new TextView[9]; // Array to hold the small number count TextViews
     private TextView[] numberButtons = new TextView[9]; // Array to hold the number buttons
     private View btnPause; // Change to View since it's an ImageView in layout
+    private View btnSave; // Add save button reference
+    private View btnLoad; // Add load button reference
     private LinearLayout winningScreen; // Add winning screen reference
     private LinearLayout losingScreen; // Add losing screen reference
     private GameHistoryManager historyManager;
@@ -234,6 +236,28 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
                 @Override
                 public void onClick(View v) {
                     togglePause();
+                }
+            });
+        }
+
+        // Add save button functionality
+        btnSave = findViewById(R.id.btnSave);
+        if (btnSave != null) {
+            btnSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    saveGameState();
+                }
+            });
+        }
+
+        // Add load button functionality
+        btnLoad = findViewById(R.id.btnLoad);
+        if (btnLoad != null) {
+            btnLoad.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    loadGameState();
                 }
             });
         }
@@ -508,5 +532,175 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         // Restart timer
         isTimerRunning = true;
         timerHandler.postDelayed(timerRunnable, 1000);
+    }
+
+    // Method to save current game state
+    private void saveGameState() {
+        if (sudokuBoard == null) {
+            Toast.makeText(this, "No game to save", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        SharedPreferences prefs = getSharedPreferences("SudokuGameSave", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        // Save game board state
+        int[][] currentBoard = sudokuBoard.getCurrentBoard();
+        int[][] initialBoard = sudokuBoard.getInitialBoard();
+        int[][] solution = sudokuBoard.getSolution();
+        boolean[][][] pencilMarks = sudokuBoard.getPencilMarks();
+
+        // Convert 2D arrays to strings for storage
+        StringBuilder currentBoardStr = new StringBuilder();
+        StringBuilder initialBoardStr = new StringBuilder();
+        StringBuilder solutionStr = new StringBuilder();
+        StringBuilder pencilMarksStr = new StringBuilder();
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                currentBoardStr.append(currentBoard[i][j]).append(",");
+                initialBoardStr.append(initialBoard[i][j]).append(",");
+                solutionStr.append(solution[i][j]).append(",");
+
+                // Save pencil marks for each cell
+                for (int k = 1; k <= 9; k++) {
+                    pencilMarksStr.append(pencilMarks[i][j][k] ? "1" : "0");
+                }
+                pencilMarksStr.append(",");
+            }
+        }
+
+        // Save all game state
+        editor.putString("currentBoard", currentBoardStr.toString());
+        editor.putString("initialBoard", initialBoardStr.toString());
+        editor.putString("solution", solutionStr.toString());
+        editor.putString("pencilMarks", pencilMarksStr.toString());
+        editor.putInt("secondsElapsed", secondsElapsed);
+        editor.putInt("score", score);
+        editor.putInt("mistakes", mistakes);
+        editor.putInt("hintsUsed", hintsUsed);
+        editor.putInt("difficulty", difficulty);
+        editor.putString("gameMode", mode.toString());
+        editor.putBoolean("pencilMode", sudokuBoard.isPencilMode());
+        editor.putBoolean("fastPencilMode", sudokuBoard.isfastPencilMode());
+        editor.putBoolean("gameExists", true);
+
+        editor.apply();
+        Toast.makeText(this, "Game saved successfully!", Toast.LENGTH_SHORT).show();
+    }
+
+    // Method to load saved game state
+    private void loadGameState() {
+        SharedPreferences prefs = getSharedPreferences("SudokuGameSave", MODE_PRIVATE);
+
+        if (!prefs.getBoolean("gameExists", false)) {
+            Toast.makeText(this, "No saved game found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // Load game state
+            String currentBoardStr = prefs.getString("currentBoard", "");
+            String initialBoardStr = prefs.getString("initialBoard", "");
+            String solutionStr = prefs.getString("solution", "");
+            String pencilMarksStr = prefs.getString("pencilMarks", "");
+
+            if (currentBoardStr.isEmpty() || initialBoardStr.isEmpty() || solutionStr.isEmpty()) {
+                Toast.makeText(this, "Invalid saved game data", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Parse board data
+            String[] currentBoardData = currentBoardStr.split(",");
+            String[] initialBoardData = initialBoardStr.split(",");
+            String[] solutionData = solutionStr.split(",");
+            String[] pencilMarksData = pencilMarksStr.split(",");
+
+            int[][] currentBoard = new int[9][9];
+            int[][] initialBoard = new int[9][9];
+            int[][] solution = new int[9][9];
+            boolean[][][] pencilMarks = new boolean[9][9][10];
+
+            // Restore board states
+            int index = 0;
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9; j++) {
+                    currentBoard[i][j] = Integer.parseInt(currentBoardData[index]);
+                    initialBoard[i][j] = Integer.parseInt(initialBoardData[index]);
+                    solution[i][j] = Integer.parseInt(solutionData[index]);
+
+                    // Restore pencil marks
+                    if (index < pencilMarksData.length && !pencilMarksData[index].isEmpty()) {
+                        String cellPencilMarks = pencilMarksData[index];
+                        for (int k = 1; k <= 9 && k-1 < cellPencilMarks.length(); k++) {
+                            pencilMarks[i][j][k] = cellPencilMarks.charAt(k-1) == '1';
+                        }
+                    }
+                    index++;
+                }
+            }
+
+            // Restore game variables
+            secondsElapsed = prefs.getInt("secondsElapsed", 0);
+            score = prefs.getInt("score", 0);
+            mistakes = prefs.getInt("mistakes", 0);
+            hintsUsed = prefs.getInt("hintsUsed", 0);
+            difficulty = prefs.getInt("difficulty", 0);
+            String gameModeStr = prefs.getString("gameMode", "EASY");
+
+            try {
+                mode = GameMode.valueOf(gameModeStr);
+            } catch (IllegalArgumentException e) {
+                mode = GameMode.EASY;
+            }
+
+            // Restore UI elements
+            tvScore.setText("Score: " + score);
+            tvMistakes.setText("Mistakes: " + mistakes + "/3");
+            updateHintCountDisplay();
+
+            // Set difficulty display
+            switch (mode) {
+                case EASY:
+                    tvDifficulty.setText("Easy");
+                    break;
+                case MEDIUM:
+                    tvDifficulty.setText("Medium");
+                    break;
+                case HARD:
+                    tvDifficulty.setText("Hard");
+                    break;
+            }
+
+            // Restore sudoku board state
+            sudokuBoard.loadGameState(currentBoard, initialBoard, solution, pencilMarks);
+
+            // Restore game modes
+            boolean pencilMode = prefs.getBoolean("pencilMode", false);
+            boolean fastPencilMode = prefs.getBoolean("fastPencilMode", false);
+
+            sudokuBoard.setPencilMode(pencilMode);
+            tvPencilon.setText(pencilMode ? "ON" : "OFF");
+
+            if (sudokuBoard.isfastPencilMode() != fastPencilMode) {
+                sudokuBoard.togglefastPencilMode();
+            }
+            tvfastPencilon.setText(fastPencilMode ? "ON" : "OFF");
+
+            // Update number counts
+            updateNumberCounts();
+
+            // Resume timer if game was running
+            if (!isPaused) {
+                isTimerRunning = true;
+                timerHandler.postDelayed(timerRunnable, 1000);
+            }
+
+            Toast.makeText(this, "Game loaded successfully!", Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Error loading saved game", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 }
