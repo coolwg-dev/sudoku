@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private TextView[] numberCountViews = new TextView[9]; // Array to hold the small number count TextViews
     private TextView[] numberButtons = new TextView[9]; // Array to hold the number buttons
     private View btnPause; // Change to View since it's an ImageView in layout
+    private LinearLayout winningScreen; // Add winning screen reference
+    private LinearLayout losingScreen; // Add losing screen reference
     private GameHistoryManager historyManager;
 
     @Override
@@ -81,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         tvPencilon = findViewById(R.id.tvPencilOn);
         tvfastPencilon = findViewById(R.id.tvFastPencilOn);
         tvHintCount = findViewById(R.id.tvHintCount); // Initialize hint count TextView
+        winningScreen = findViewById(R.id.winningScreen); // Initialize winning screen
+        losingScreen = findViewById(R.id.losingScreen); // Initialize losing screen
 
         // Initialize score to 0
         score = 0;
@@ -236,6 +241,12 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
         // Start timer when game begins
         isTimerRunning = true;
         timerHandler.postDelayed(timerRunnable, 1000);
+
+        // Initialize winning screen buttons
+        setupWinningScreenButtons();
+
+        // Initialize losing screen buttons
+        setupLosingScreenButtons();
     }
 
     // Method to toggle pause state
@@ -293,14 +304,12 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     @Override
     public void onGameCompleted() {
         isTimerRunning = false;
-        if (tvFinished != null) {
-            tvFinished.setVisibility(View.VISIBLE);
-        }
 
         // Save completed game to history
         saveGameToHistory(true);
 
-        Toast.makeText(this, "Congratulations! Game completed!", Toast.LENGTH_LONG).show();
+        // Show the full-screen winning overlay
+        winningScreen.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -321,6 +330,9 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
 
             // Save failed game to history
             saveGameToHistory(false);
+
+            // Show the full-screen losing overlay
+            losingScreen.setVisibility(View.VISIBLE);
         }
         updateNumberCounts(); // Update number counts when board changes
     }
@@ -392,5 +404,109 @@ public class MainActivity extends AppCompatActivity implements SudokuBoardView.S
     private void resetHints() {
         hintsUsed = 0;
         updateHintCountDisplay();
+    }
+
+    // Method to setup winning screen buttons
+    private void setupWinningScreenButtons() {
+        Button btnOneMoreGame = findViewById(R.id.btnOneMoreGame);
+        Button btnBackHome = findViewById(R.id.btnBackHome);
+
+        if (btnOneMoreGame != null) {
+            btnOneMoreGame.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Start a new game with same difficulty
+                    startNewGame();
+                }
+            });
+        }
+
+        if (btnBackHome != null) {
+            btnBackHome.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Go back to home screen
+                    finish();
+                }
+            });
+        }
+    }
+
+    // Method to setup losing screen buttons
+    private void setupLosingScreenButtons() {
+        Button btnTryAgain = findViewById(R.id.btnTryAgain);
+        Button btnBackHomeFromLose = findViewById(R.id.btnBackHomeFromLose);
+
+        if (btnTryAgain != null) {
+            btnTryAgain.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Restart the same game
+                    restartGame();
+                }
+            });
+        }
+
+        if (btnBackHomeFromLose != null) {
+            btnBackHomeFromLose.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Go back to home screen
+                    finish();
+                }
+            });
+        }
+    }
+
+    // Method to restart the game
+    private void restartGame() {
+        // Hide losing screen
+        losingScreen.setVisibility(View.GONE);
+
+        // Reset game state variables
+        secondsElapsed = 0;
+        score = 0;
+        mistakes = 0;
+        hintsUsed = 0;
+
+        // Reset UI elements
+        tvScore.setText("Score: " + score);
+        tvMistakes.setText("Mistakes: " + mistakes + "/3");
+        tvFinished.setVisibility(View.GONE);
+        updateHintCountDisplay();
+
+        // Generate new puzzle with same difficulty
+        sudokuBoard.generateNewPuzzle();
+        updateNumberCounts();
+
+        // Restart timer
+        isTimerRunning = true;
+        timerHandler.postDelayed(timerRunnable, 1000);
+    }
+
+    // Method to start a new game
+    private void startNewGame() {
+        // Hide winning screen
+        winningScreen.setVisibility(View.GONE);
+
+        // Reset game state variables
+        secondsElapsed = 0;
+        score = 0;
+        mistakes = 0;
+        hintsUsed = 0;
+
+        // Reset UI elements
+        tvScore.setText("Score: " + score);
+        tvMistakes.setText("Mistakes: " + mistakes + "/3");
+        tvFinished.setVisibility(View.GONE);
+        updateHintCountDisplay();
+
+        // Generate new puzzle with same difficulty
+        sudokuBoard.generateNewPuzzle();
+        updateNumberCounts();
+
+        // Restart timer
+        isTimerRunning = true;
+        timerHandler.postDelayed(timerRunnable, 1000);
     }
 }
